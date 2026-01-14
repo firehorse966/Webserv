@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Web Server Home</title>
+  <style>
+    body { font-family: sans-serif; max-width: 900px; margin: auto; padding: 20px; background: #f8f8f8; }
+    header, footer { text-align: center; padding: 10px 0; }
+    header h1 { margin-bottom: 10px; font-size: 2.5em; }
+    header video { width: 100%; max-height: 300px; object-fit: cover; margin-bottom: 10px; }
+    nav ul { list-style: none; padding: 0; margin: 0; display: flex; justify-content: center; }
+    nav li { margin: 0 10px; }
+    nav a { text-decoration: none; color: #007bff; font-weight: bold; }
+    section { background: #fff; padding: 15px; margin-top: 20px; border: 1px solid #ddd; border-radius: 5px; }
+    section h3 { margin-top: 0; }
+    form input[type="text"], form textarea { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 3px; font-size: 1em; }
+    form input[type="submit"], button { background: #007bff; color: #fff; border: none; padding: 10px 20px; font-size: 1em; border-radius: 3px; cursor: pointer; }
+    form input[type="submit"]:hover, button:hover { background: #0056b3; }
+    .comment { border-bottom: 1px solid #eee; padding: 10px 0; }
+    .comment:last-child { border-bottom: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Welcome to ITUBOLA Web Server</h1>
+    <video autoplay muted loop>
+      <source src="/numbers.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <h2>Explore Our Site</h2>
+    <nav>
+      <ul>
+        <li><a href="upload.html">Uploads</a></li>
+        <li><a href="files.html">Files &amp; Images</a></li>
+        <li><a href="redirect">Redirect</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <section id="intro">
+      <p>This page is designed to test several features, including CGI processing, file uploads, range requests, caching, and a dynamic comments section. Use the navigation above to explore different functionalities.</p>
+    </section>
+
+    <section id="comments">
+      <h3>Comments</h3>
+      <div id="comments-display"><!-- Comments will load here --></div>
+      <h3>Post a Comment</h3>
+      <form action="/cgi-bin/comment.cgi" method="POST">
+        <input type="text" name="author" placeholder="Your Name" required>
+        <textarea name="message" rows="4" placeholder="Write your comment..." required></textarea>
+        <input type="submit" value="Submit Comment">
+      </form>
+    </section>
+
+    <section id="test-error">
+      <h3>Prueba de errores CGI</h3>
+      <p>Selecciona una prueba para ejecutar el script <code>test_error.cgi</code> y comprobar el manejo de errores:</p>
+      <form action="/cgi-bin/test_error.cgi" method="GET">
+        <button type="submit" name="test" value="timeout">Timeout (408)</button>
+        <button type="submit" name="test" value="segfault">Error 500</button>
+      </form>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 Itubola Web Server. All rights reserved.</p>
+  </footer>
+
+  <script>
+    async function loadComments() {
+      try {
+        const response = await fetch('/comments/index.json');
+        const files = await response.json();
+        const container = document.getElementById('comments-display');
+        container.innerHTML = '';
+        for (const file of files.reverse()) {
+          const res = await fetch(`/comments/${file}`);
+          const html = await res.text();
+          const wrapper = document.createElement('div');
+          wrapper.className = 'comment';
+          wrapper.innerHTML = html;
+          const deleteBtn = document.createElement('button');
+          deleteBtn.textContent = 'Delete';
+          deleteBtn.style.marginTop = '10px';
+          deleteBtn.addEventListener('click', async () => {
+            const password = prompt('Enter admin password:');
+            const url = `/cgi-bin/delete.cgi?type=comment&target=${encodeURIComponent(file)}&password=${encodeURIComponent(password)}`;
+            const delRes = await fetch(url, { method: 'DELETE' });
+            if (delRes.ok) loadComments(); else alert('Failed to delete.');
+          });
+          wrapper.appendChild(deleteBtn);
+          container.appendChild(wrapper);
+        }
+      } catch (err) { console.error('Error loading comments:', err); }
+    }
+    window.addEventListener('DOMContentLoaded', () => loadComments());
+  </script>
+</body>
+</html>

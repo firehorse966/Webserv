@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Uploads</title>
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 2rem; }
+    h1 { text-align: center; }
+    ul { list-style: none; padding: 0; }
+    li { display: flex; justify-content: space-between; align-items: center; padding: .5rem 0; border-bottom: 1px solid #ccc; }
+    button { margin-left: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Uploaded Files</h1>
+  <ul id="file-list"></ul>
+
+  <script>
+    async function loadFiles() {
+      const res = await fetch('/resources/uploads.json');
+      if (!res.ok) return alert("Failed to load uploads.json");
+      const files = await res.json();
+      const ul = document.getElementById('file-list');
+      ul.innerHTML = '';
+
+      files.forEach(file => {
+        const li = document.createElement('li');
+
+        const link = document.createElement('a');
+        link.href = '/uploads/' + encodeURIComponent(file);
+        link.textContent = file;
+        link.download = file;
+
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Delete';
+        delBtn.onclick = async () => {
+          if (!confirm(`Delete "${file}"?`)) return;
+          const res = await fetch(`/cgi-bin/delete.cgi?type=uploads&target=${encodeURIComponent(file)}`, {
+  			method: 'DELETE'
+			});
+
+
+          if (res.ok) {
+            loadFiles();
+          } else {
+            alert('Delete failed.');
+          }
+        };
+
+        li.appendChild(link);
+        li.appendChild(delBtn);
+        ul.appendChild(li);
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', loadFiles);
+  </script>
+</body>
+</html>

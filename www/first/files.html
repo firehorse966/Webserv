@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gallery and Downloads</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin: auto; }
+    .image-wrapper { display: inline-block; margin: 10px; text-align: center; }
+    .image { max-width: 200px; display: block; cursor: zoom-in; }
+    .downloads div { margin-bottom: 0.5em; }
+    .downloads a { margin-right: 1em; text-decoration: none; }
+    .downloads .dl { color: #28a745; }
+  </style>
+</head>
+<body>
+  <h1>Image Gallery</h1>
+  <div id="gallery"></div>
+
+  <h1>Downloadable Files</h1>
+  <div class="downloads" id="downloads"></div>
+
+  <script>
+    async function init() {
+      try {
+        const res  = await fetch("/resources/downloads.json");
+        const data = await res.json();
+
+        const gallery   = document.getElementById("gallery");
+        const downloads = document.getElementById("downloads");
+
+        // Images with view + download
+        data.images.forEach(image => {
+          const url     = `/images/${encodeURIComponent(image)}`;
+          const wrapper = document.createElement("div");
+          wrapper.className = "image-wrapper";
+
+          // view full‑size
+          const viewLink = document.createElement("a");
+          viewLink.href   = url;
+          viewLink.target = "_blank";
+          viewLink.title  = "Click to view full‑size";
+
+          const img = document.createElement("img");
+          img.src       = url;
+          img.className = "image";
+
+          viewLink.appendChild(img);
+
+          // download button
+          const dlButton = document.createElement("a");
+          dlButton.href     = url;
+          dlButton.download = image;
+          dlButton.textContent = "Download";
+          dlButton.className   = "dl";
+
+          wrapper.appendChild(viewLink);
+          wrapper.appendChild(dlButton);
+          gallery.appendChild(wrapper);
+        });
+
+        // Files: view & download
+        data.files.forEach(file => {
+          const url = `/files/${encodeURIComponent(file)}`;
+          const row = document.createElement("div");
+
+          // View link
+          const viewLink = document.createElement("a");
+          viewLink.href   = url;
+          viewLink.target = "_blank";
+          viewLink.textContent = "[View] " + file;
+
+          // Download link
+          const dlLink = document.createElement("a");
+          dlLink.href     = url;
+          dlLink.download = file;
+          dlLink.textContent = "[Download]";
+          dlLink.className = "dl";
+
+          row.appendChild(viewLink);
+          row.appendChild(dlLink);
+          downloads.appendChild(row);
+        });
+      } catch (err) {
+        console.error("Error loading resources:", err);
+        document.body.insertAdjacentHTML('beforeend',
+          '<p style="color:red;">Failed to load gallery/download list.</p>');
+      }
+    }
+    window.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>

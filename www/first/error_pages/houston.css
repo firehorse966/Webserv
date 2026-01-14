@@ -1,0 +1,59 @@
+body {
+	font-family: Arial, sans-serif;
+	background-color: #f0f0f0;
+	color: #333;
+	text-align: center;
+	margin: 0;
+	padding: 0;
+  }
+  
+  .container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100vh;
+  }
+  
+  .main {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 20px;
+  }
+  
+  .astronaut {
+	width: 500px;
+	height: 400px;
+	margin: 0 0px;
+  }
+  
+  .number {
+	position: absolute;
+	font-size: 400px;
+	font-weight: bold;
+	color: rgba(0, 0, 0, 0.6);
+  }
+  
+  .left {
+	left: 10%;
+	top: 30%;
+	transform: translate(-50%, -50%); 
+  }
+  
+  .right {
+	right: 10%; 
+	top: 30%; 
+	transform: translate(50%, -50%); 
+  }
+  
+  .MainTitle {
+	font-size: 36px;
+	font-weight: bold;
+  }
+
+  .subTitle {
+	font-size: 24px;
+	font-weight: bold;
+  }

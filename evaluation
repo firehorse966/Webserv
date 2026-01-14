@@ -1,0 +1,45 @@
+stress test
+/home/aiturria/siege-4.1.7/src/siege -b -c 255 -t 10S http://127.0.0.1:8080
+
+check zombie process
+ps --ppid $(pgrep webserv) -o pid,stat,cmd
+
+default server
+curl -s --resolve first.com:8080:127.0.0.1 http://first.com:8080/index.html | tail
+//curl -v -H "Host: first.com" http://127.0.0.1:8080/
+
+secondary server
+curl -s --resolve second.com:8080:127.0.0.1 http://second.com:8080/index.html | tail
+//curl -v -H "Host: second.com" http://127.0.0.1:8080/
+
+non valid name / default server
+curl -s --resolve non_valid:8080:127.0.0.1 http://non_valid:8080/index.html | tail
+
+check body lenght (small file)
+
+curl -s -X POST -H "Content-Type: text/plain" --data-binary "this comment has no author" http://127.0.0.1:8080/cgi-bin/comment.cgi | tail
+
+
+check body lenght (too big file)
+curl -s -X POST -H "Content-Type: text/plain" -H "Content-Length: 123456789" 127.0.0.1:8080/cgi-bin/upload.cgi | tail
+
+head -c 53428800 /dev/zero | curl -s -X POST -H "Content-Type: application/octet-stream" --data-binary @- http:/127.0.0.1:8080 cgi-bin/upload.cgi | tail
+
+
+Method check
+curl -s -X "UNKNOWN" http://127.0.0.1:8080 | tail
+
+bad request
+echo -e "GET / HTTP/2.0 \r\n\r\n" | nc 127.0.0.1 8080 | tail
+
+CGI faults
+curl -i "http://127.0.0.1:8080/cgi-bin/test_error.cgi?test=segfault" | tail
+curl -i "http://127.0.0.1:8080/cgi-bin/test_error.cgi?test=timeout" | tail
+
+curl -X POST -H "Content-Type: application/x-www-form-urlencoded" \
+     -d "author=yo+aqui&message=de+nuevo" \
+     http://127.0.0.1:8080/cgi-bin/comment.cgi
+
+curl -X DELETE -H "Content-Length: 0" \
+     "http://127.0.0.1:8080/cgi-bin/delete.cgi?type=comment&target=comment_1747388399_3892548.html&password=hola" | tail
+
