@@ -129,16 +129,6 @@ valgrind --leak-check=full ./webserv config.conf
 
 ---
 
-## 📂 Project Structure (example)
-
-## 👤 Authors
-
-- **aiturria**
-- **mbolano**
-  42 Málaga
-
----
-
 ## 📄 License
 
 This project is for educational purposes as part of the 42 curriculum.
